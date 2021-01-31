@@ -209,6 +209,23 @@ export const get = (data: any, path: DotKey, value: any | undefined = undefined,
 };
 
 
+const ILLEGAL_KEYS = new Set(["__proto__"]);
+
+const isIllegalKey = (key: string): Boolean => ILLEGAL_KEYS.has(key);
+
+const isProtoPath = (path: string[] | string): Boolean => Array.isArray(path)
+  ? path.some(isIllegalKey)
+  : typeof path === "string"
+    ? isIllegalKey(path)
+    : false;
+
+const disallowProtoPath = (path: string[] | string): void => {
+  if (isProtoPath(path)) {
+    throw new Error(`Unsafe path encountered ${path}`);
+  }
+}
+
+
 /**
  * Setter
  */
@@ -223,6 +240,7 @@ export const set = (data: any, path: DotKey, value: any): any => {
   }
 
   const tokens = tokenize(path);
+  disallowProtoPath(tokens);
 
   if (tokens.indexOf('*') < 0) {
     const res = _data;

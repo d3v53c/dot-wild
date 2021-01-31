@@ -362,6 +362,8 @@ describe('dot-wild', () => {
       hoge: date1,
     });
     assertDate();
+
+    assert.throws(() => dot.set(t1, '__proto__.polluted', true));
   });
 
 
